@@ -1,0 +1,12 @@
+### IntelliJ IDEA ###
+.idea/**/*.xml
+*/.idea/
+*.iws
+*.iml
+*.ipr
+
+### Some additional ignores (sort later)
+*.DS_Store
+
+target
+/*/target/*
