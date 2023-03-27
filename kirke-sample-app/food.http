@@ -1,0 +1,24 @@
+POST http://localhost:8080/api/foodcart/create
+Content-Type: application/json; charset=utf-8
+Accept: application/json
+Cache-Control: no-cache
+
+####
+
+POST http://localhost:8080/api/foodcart/product/add
+Content-Type: application/json; charset=utf-8
+Accept: application/json
+Cache-Control: no-cache
+
+{
+  "foodCartId": "791102e8-f6e5-4f24-831d-071c3c2519a9",
+  "productId": "044619bc-146e-4065-a4b8-34ed49d8b76a",
+  "quantity": 1
+}
+
+####
+
+GET http://localhost:8080/api/foodcart/961f9146-b030-41aa-9c81-07575b8a9e8d
+Content-Type: application/json; charset=utf-8
+Accept: application/json
+Cache-Control: no-cache
