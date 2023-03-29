@@ -11,7 +11,7 @@ Accept: application/json
 Cache-Control: no-cache
 
 {
-  "foodCartId": "791102e8-f6e5-4f24-831d-071c3c2519a9",
+  "foodCartId": "6bf9a23d-487c-42dc-93ee-d73c6153a8f6",
   "productId": "044619bc-146e-4065-a4b8-34ed49d8b76a",
   "quantity": 1
 }

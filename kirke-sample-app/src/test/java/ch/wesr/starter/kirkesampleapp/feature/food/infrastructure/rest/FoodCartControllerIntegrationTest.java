@@ -1,11 +1,13 @@
 package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 
 
+import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Test;
@@ -21,9 +23,9 @@ import java.util.UUID;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest
+@Slf4j
 @AutoConfigureMockMvc
-class FoodCartControllerIntegrationTest {
+class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
@@ -49,6 +51,7 @@ class FoodCartControllerIntegrationTest {
                 .andExpect(status().isOk());
 
         // then
+        log.info("EventRepository: {}", eventRepository);
         Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(uuid);
         FoodCart foodCart =  (FoodCart) byTargetIdentifier.get();
         Assertions.assertThat(foodCart).isNotNull()

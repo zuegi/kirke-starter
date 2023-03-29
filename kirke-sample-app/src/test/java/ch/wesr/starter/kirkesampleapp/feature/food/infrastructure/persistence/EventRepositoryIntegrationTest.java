@@ -1,6 +1,7 @@
 package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence;
 
 
+import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
@@ -13,8 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.Optional;
 import java.util.UUID;
 
-@SpringBootTest
-class EventRepositoryIntegrationTest {
+class EventRepositoryIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     EventRepository eventRepository;

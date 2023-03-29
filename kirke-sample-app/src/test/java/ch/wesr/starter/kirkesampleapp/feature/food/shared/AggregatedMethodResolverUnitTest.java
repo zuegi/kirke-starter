@@ -1,4 +1,4 @@
-package ch.wesr.starter.kirkesampleapp.feature.food;
+package ch.wesr.starter.kirkesampleapp.feature.food.shared;
 
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;

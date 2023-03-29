@@ -1,6 +1,7 @@
 package ch.wesr.starter.kirkesampleapp.feature.food.shared;
 
 
+import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
@@ -14,8 +15,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 
-@SpringBootTest
-class CommandGatewayIntegrationTest {
+class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     CommandGateway commandGateway;
