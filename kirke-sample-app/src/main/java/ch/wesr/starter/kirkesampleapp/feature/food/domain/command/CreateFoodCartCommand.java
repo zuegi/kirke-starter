@@ -5,5 +5,5 @@ import ch.wesr.starter.kirkespringbootstarter.annotation.TargetAggregateIdentifi
 
 import java.util.UUID;
 
-public record CreateFoodCartCommand(@TargetAggregateIdentifier UUID uuid) {
+public record CreateFoodCartCommand(@TargetAggregateIdentifier UUID foodCartId) {
 }

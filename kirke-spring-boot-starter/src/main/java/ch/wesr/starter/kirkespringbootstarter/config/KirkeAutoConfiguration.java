@@ -20,25 +20,28 @@ public class KirkeAutoConfiguration {
     SpringContext springContext() {
         return new SpringContext();
     }
+
     @Bean
     @ConditionalOnMissingBean
     EventRepository eventRepository() {
         EventRepository eventRepository = new EventRepository();
-        log.info("EventRepository: {} has been started", eventRepository);
+        log.debug("EventRepository: {} has been started", eventRepository);
         return eventRepository;
     }
 
     @Bean
     @ConditionalOnMissingBean
     CommandGateway commandGateway() {
-        log.info("CommandGateway has been started");
-        return new CommandGateway(eventRepository());
+        CommandGateway commandGateway = new CommandGateway(eventRepository());
+        log.debug("CommandGateway: {} has been started", commandGateway);
+        return commandGateway;
     }
 
     @Bean
     @ConditionalOnMissingBean
     QueryGateway queryGateway() {
-        log.info("QueryGateway has been started");
-        return new QueryGateway();
+        QueryGateway queryGateway = new QueryGateway();
+        log.debug("QueryGateway: {} has been started", queryGateway);
+        return queryGateway;
     }
 }

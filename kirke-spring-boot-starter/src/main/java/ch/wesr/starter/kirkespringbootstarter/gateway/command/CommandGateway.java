@@ -8,7 +8,6 @@ import ch.wesr.starter.kirkespringbootstarter.gateway.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -27,18 +26,20 @@ public class CommandGateway {
     public String send(Object command) {
 
         // den Wert des @TargetAggregateIdentifer aus dem Command via Reflection auslesen
-        UUID targetIdentifier = getTargetIdentifer(command);
+        UUID targetIdentifier = TargetIdentifierResolver.resolve(command, TargetAggregateIdentifier.class);
+        log.debug("[{}] read targetIdentifer from command: {}", targetIdentifier, command);
         // extrahiere die Methode, welche mit @CommandHandler annotiert ist und command als signature parameter hat
         List<Method> methodList = getMethods(command);
         assertCorrectNumberOfMethods(methodList);
         Method method = methodList.get(0);
 
+
         try {
 
             Object aggregateObject = eventRepository.findByTargetIdentifier(targetIdentifier).orElse( createNewAggregateObject(method));
-
+            log.debug("[{}] found aggregate: {}", targetIdentifier, aggregateObject.toString());
             // an dieser stellen das aus dem repository erstellte Aggregate Object aufrufen
-
+            log.debug("[{}] invoke method: {}({},{})", targetIdentifier, method.getName(), aggregateObject, command);
             method.invoke(aggregateObject, command);
 
             return targetIdentifier.toString();
@@ -54,33 +55,6 @@ public class CommandGateway {
                 .filterMethodAnnotatedWith(CommandHandler.class)
                 .filterMethodParameter(command)
                 .resolve();
-    }
-
-    private static UUID getTargetIdentifer(Object command) {
-        UUID targetIdentifier = null;
-        try {
-            Field field = getField(command);
-            if (field != null) {
-                field.setAccessible(true);
-                targetIdentifier = (UUID) field.get(command);
-            }
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return targetIdentifier;
-    }
-
-    private static Field getField(Object command) {
-        List<Field> fieldList = new AggregatedFieldResolver()
-                .filterClasses(command.getClass())
-                .filterFieldAnnotationWith(TargetAggregateIdentifier.class)
-                .resolve();
-        if (fieldList == null || fieldList.isEmpty()) {
-            return null;
-        }
-        Field field = fieldList.get(0);
-        assert fieldList.size() == 1;
-        return field;
     }
 
     private static Object createNewAggregateObject(Method method)  {

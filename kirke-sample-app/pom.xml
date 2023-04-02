@@ -14,7 +14,10 @@
     <name>kirke-sample-app</name>
     <description>kirke-sample-app</description>
     <properties>
-        <java.version>17</java.version>
+        <java.version>19</java.version>
+        <maven.compiler.source>19</maven.compiler.source>
+        <maven.compiler.target>19</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
 

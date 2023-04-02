@@ -38,21 +38,21 @@ public class FoodCart {
      *********************/
     @CommandHandler
     public void handle(CreateFoodCartCommand command) {
-        log.info("Ich bin ein {}: {}",  command.getClass().getSimpleName(), command);
+        log.debug("[{}] {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
          // create an event
-        AggregateLifeCycle.apply(new FoodCartCreatedEvent(command.uuid()));
+        AggregateLifeCycle.apply(new FoodCartCreatedEvent(command.foodCartId()));
 
     }
 
     @CommandHandler
     public void handle(SelectProductCommand command) {
-        log.info("Ich bin ein {}: {}",  command.getClass().getSimpleName(), command);
+        log.debug("[{}] {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
         AggregateLifeCycle.apply(new ProductSelectedEvent(command.foodCartId(), command.productId(), command.quantity()));
     }
 
     @CommandHandler
     public void handle(ConfirmFoodCartCommand command) {
-        log.info("Ich bin ein {}: {}",  command.getClass().getSimpleName(), command);
+        log.debug("[{}]  {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
         AggregateLifeCycle.apply(new ConfirmedFoodCartEvent(command.foodCartId()));
     }
 
@@ -63,7 +63,7 @@ public class FoodCart {
     // der EventHandler wird dann verwendet um den State des Aggregates zu erstellen
     @EventSourceHandler
     public void on(FoodCartCreatedEvent event) {
-        log.info("Ich bin ein {}: {}", event.getClass().getSimpleName(), event);
+        log.debug("[{}]  {}: {}",  event.foodCartId(),event.getClass().getSimpleName(), event);
         foodCartId = event.foodCartId();
         selectedProducts = new HashMap<>();
         confirmed = false;
@@ -71,12 +71,12 @@ public class FoodCart {
 
     @EventSourceHandler
     public void on(ProductSelectedEvent event) {
-        log.info("Ich bin ein {}: {}", event.getClass().getSimpleName(), event);
+        log.debug("[{}]  {}: {}",  event.foodCartId(), event.getClass().getSimpleName(), event);
         selectedProducts.merge(event.productId(), event.quantity(), Integer::sum);
     }
     @EventSourceHandler
     public void on(ConfirmedFoodCartEvent event) {
-        log.info("Ich bin ein {}: {}", event.getClass().getSimpleName(), event);
+        log.debug("[{}]  {}: {}",  event.foodCartId(), event.getClass().getSimpleName(), event);
         this.confirmed = true;
     }
 

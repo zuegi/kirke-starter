@@ -22,8 +22,7 @@ public class FoodCartProjector {
 
     @EventHandler
     public void on(FoodCartCreatedEvent event) {
-        log.info("Ich bin ein {}: {}", event.getClass().getSimpleName(), event);
-
+        log.debug("[{}] save {}: {}", event.foodCartId(), event.getClass().getSimpleName(), event);
         FoodCartView foodCartView = new FoodCartView(event.foodCartId(), Collections.emptyMap());
         repository.save(foodCartView);
 
@@ -31,7 +30,7 @@ public class FoodCartProjector {
 
     @QueryHandler
     public FoodCartView handle(FindFoodCartQuery foodCartQuery) {
-        log.info("Ich bin eine {}: {}",  foodCartQuery.getClass().getSimpleName(), foodCartQuery);
+        log.debug("[{}]  save {}: {}", foodCartQuery.foodCartId(), foodCartQuery.getClass().getSimpleName(), foodCartQuery);
         return repository.findById(foodCartQuery.foodCartId()).orElse(null);
     }
 }

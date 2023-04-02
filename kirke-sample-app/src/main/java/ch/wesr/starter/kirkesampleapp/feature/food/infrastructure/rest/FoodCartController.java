@@ -8,12 +8,14 @@ import ch.wesr.starter.kirkesampleapp.feature.food.domain.query.FindFoodCartQuer
 import ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence.FoodCartView;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import ch.wesr.starter.kirkespringbootstarter.gateway.query.QueryGateway;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping(value = "/api/foodcart", produces = MediaType.APPLICATION_JSON_VALUE)
 public class FoodCartController {
@@ -28,7 +30,10 @@ public class FoodCartController {
 
     @PostMapping("/create")
     public ResponseEntity<String> handle() {
-        return ResponseEntity.ok(commandGateway.send(new CreateFoodCartCommand(UUID.randomUUID())));
+
+        UUID uuid = UUID.randomUUID();
+        log.debug("[{}] Received a Request to create a FoodCart", uuid);
+        return ResponseEntity.ok(commandGateway.send(new CreateFoodCartCommand(uuid)));
     }
 
     @PostMapping(value = "/product/add",  consumes = {MediaType.APPLICATION_JSON_VALUE})

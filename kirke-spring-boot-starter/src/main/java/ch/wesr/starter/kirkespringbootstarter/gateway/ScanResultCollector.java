@@ -25,7 +25,8 @@ public class ScanResultCollector {
 
     private static ScanResult scanResult() {
         return new ClassGraph()
-                .disableJarScanning()
+                // FIXME wirklich alles jars scannen?
+//                .disableJarScanning()
                 .enableAllInfo()
                 .scan();
     }

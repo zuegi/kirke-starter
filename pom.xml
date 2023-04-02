@@ -9,6 +9,10 @@
     <packaging>pom</packaging>
     <name>CQRS and Event Sourcing with DDD</name>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>kirke-spring-boot-starter</module>
         <module>kirke-sample-app</module>

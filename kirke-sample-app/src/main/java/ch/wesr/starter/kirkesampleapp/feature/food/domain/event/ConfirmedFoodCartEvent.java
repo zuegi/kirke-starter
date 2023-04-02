@@ -5,5 +5,5 @@ import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifi
 
 import java.util.UUID;
 
-public record ConfirmedFoodCartEvent(@AggregatedEventIdentifier UUID foodCardId) {
+public record ConfirmedFoodCartEvent(@AggregatedEventIdentifier UUID foodCartId) {
 }
