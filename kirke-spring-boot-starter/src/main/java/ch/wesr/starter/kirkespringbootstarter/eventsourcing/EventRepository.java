@@ -7,6 +7,7 @@ import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventSourceHandler;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedFieldResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
+import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -35,10 +36,9 @@ public class EventRepository {
 
     @EventHandler
     public void on(Object event) {
-        // wie finde ich heraus, um welches Event es sich handelt
-        // event.getClass(); aber brauche ich vielleicht gar nicht
-        // da gibt es Reflection.getCallerClass....
-        log.info("hello and welcome unknown object event: {}", event.toString());
+
+        UUID targetIdentifier = TargetIdentifierResolver.resolve(event,AggregatedEventIdentifier.class);
+        log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
         List<Field> fieldList = new AggregatedFieldResolver()
                 .filterClasses(event.getClass())
                 .filterFieldAnnotationWith(AggregatedEventIdentifier.class)
@@ -64,7 +64,7 @@ public class EventRepository {
             throw new RuntimeException(e);
         }
 
-        log.info("eventmap: {}", eventMap.toString());
+        log.debug("[{}] eventmap: {}", targetIdentifier, eventMap.toString());
     }
 
     public Optional<Object> findByTargetIdentifier(UUID targetIdentifier) {
@@ -80,37 +80,36 @@ public class EventRepository {
             var ref = new Object() {
                 Object aggregate = null;
             };
-            classStringMap.entrySet()
-                    .forEach(classStringEntry -> {
-                        log.info("key: {}, value: {}", classStringEntry.getKey(), classStringEntry.getValue());
+            classStringMap.forEach((key, value) -> {
+                log.debug("[{}] key: {}, value: {}", targetIdentifier, key, value);
+                try {
+                    Object event = objectMapper.readValue(value, key);
+                    log.debug("[{}] event name: {}", targetIdentifier, event.getClass().getSimpleName());
+
+                    List<Method> methodList = new AggregatedMethodResolver()
+                            .filterClassAnnotatedWith(Aggregate.class)
+                            .filterMethodAnnotatedWith(EventSourceHandler.class)
+                            .filterMethodParameter(event)
+                            .resolve();
+                    assert methodList.size() == 1;
+
+                    if (ref.aggregate == null) {
+                        ref.aggregate = methodList.get(0).getDeclaringClass().newInstance();
+                    }
+
+                    methodList.forEach(method -> {
                         try {
-                            Object event = objectMapper.readValue(classStringEntry.getValue(), classStringEntry.getKey());
-                            log.info("event name: {}", event.getClass().getSimpleName());
-
-                            List<Method> methodList = new AggregatedMethodResolver()
-                                    .filterClassAnnotatedWith(Aggregate.class)
-                                    .filterMethodAnnotatedWith(EventSourceHandler.class)
-                                    .filterMethodParameter(event)
-                                    .resolve();
-                            assert methodList.size() == 1;
-
-                            if (ref.aggregate == null) {
-                                ref.aggregate = methodList.get(0).getDeclaringClass().newInstance();
-                            }
-
-                            methodList.forEach(method -> {
-                                try {
-                                    method.invoke( ref.aggregate, event);
-                                } catch (IllegalAccessException | InvocationTargetException e) {
-                                    throw new RuntimeException(e);
-                                }
-                            });
-
-                        } catch (JsonProcessingException | InstantiationException | IllegalAccessException e) {
+                            method.invoke(ref.aggregate, event);
+                        } catch (IllegalAccessException | InvocationTargetException e) {
                             throw new RuntimeException(e);
                         }
-
                     });
+
+                } catch (JsonProcessingException | InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
+            });
 
             return Optional.of(ref.aggregate);
         }
