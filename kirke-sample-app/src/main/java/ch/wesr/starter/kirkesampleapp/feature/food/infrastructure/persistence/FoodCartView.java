@@ -4,17 +4,19 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import lombok.Data;
 
 import java.util.Map;
 import java.util.UUID;
 
 @Entity
+@Data
 public class FoodCartView {
 
     public FoodCartView() {
     }
 
-    public FoodCartView(UUID foodCartId, Map<UUID, String> products) {
+    public FoodCartView(UUID foodCartId, Map<UUID, Integer> products) {
         this.foodCartId = foodCartId;
         this.products = products;
     }
@@ -25,6 +27,8 @@ public class FoodCartView {
     private UUID foodCartId;
 
     @ElementCollection
-    private Map<UUID, String> products;
+    private Map<UUID, Integer> products;
+
+    private boolean confirmed;
 
 }

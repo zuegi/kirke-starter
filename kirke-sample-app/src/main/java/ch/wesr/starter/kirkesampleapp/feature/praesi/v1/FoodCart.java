@@ -1,7 +1,7 @@
 package ch.wesr.starter.kirkesampleapp.feature.praesi.v1;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeSelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import lombok.Data;
 
@@ -28,7 +28,7 @@ public class FoodCart {
         selectedProducts.merge(selectedCommand.productId(), selectedCommand.quantity(), Integer::sum);
     }
 
-    public void deSelectedProduct(DeSelectProductCommand deselectCommand ) {
+    public void deSelectedProduct(DeselectProductCommand deselectCommand ) {
         selectedProducts.computeIfPresent(
                 deselectCommand.productId(),
                 (productId, quantity) -> quantity -= deselectCommand.quantity()

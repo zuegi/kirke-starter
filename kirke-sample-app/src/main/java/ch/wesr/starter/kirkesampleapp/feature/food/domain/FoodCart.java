@@ -3,9 +3,11 @@ package ch.wesr.starter.kirkesampleapp.feature.food.domain;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ConfirmedFoodCartEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductDeselectedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
 import ch.wesr.starter.kirkespringbootstarter.annotation.Aggregate;
 import ch.wesr.starter.kirkespringbootstarter.annotation.CommandHandler;
@@ -51,6 +53,12 @@ public class FoodCart {
     }
 
     @CommandHandler
+    public void handel(DeselectProductCommand command) {
+        log.debug("[{}] {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
+        AggregateLifeCycle.apply(new ProductDeselectedEvent(command.foodCartId(), command.productId(), command.quantity()));
+    }
+
+    @CommandHandler
     public void handle(ConfirmFoodCartCommand command) {
         log.debug("[{}]  {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
         AggregateLifeCycle.apply(new ConfirmedFoodCartEvent(command.foodCartId()));
@@ -74,6 +82,14 @@ public class FoodCart {
         log.debug("[{}]  {}: {}",  event.foodCartId(), event.getClass().getSimpleName(), event);
         selectedProducts.merge(event.productId(), event.quantity(), Integer::sum);
     }
+
+    @EventSourceHandler
+    public void on(ProductDeselectedEvent event) {
+        selectedProducts.computeIfPresent(
+                event.productId(),
+                (productId, quantity) -> quantity -= event.quantity());
+    }
+
     @EventSourceHandler
     public void on(ConfirmedFoodCartEvent event) {
         log.debug("[{}]  {}: {}",  event.foodCartId(), event.getClass().getSimpleName(), event);

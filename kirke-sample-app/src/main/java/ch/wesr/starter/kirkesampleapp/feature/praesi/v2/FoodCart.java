@@ -1,9 +1,12 @@
 package ch.wesr.starter.kirkesampleapp.feature.praesi.v2;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeSelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -34,7 +37,7 @@ public class FoodCart {
         selectedProducts.merge(selectedCommand.productId(), selectedCommand.quantity(), Integer::sum);
     }
 
-    public void deSelectedProduct(DeSelectProductCommand deselectCommand) {
+    public void deSelectedProduct(DeselectProductCommand deselectCommand) {
         selectedProducts.computeIfPresent(
                 deselectCommand.productId(),
                 (productId, quantity) -> quantity -= deselectCommand.quantity()

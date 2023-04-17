@@ -1,9 +1,8 @@
 package ch.wesr.starter.kirkesampleapp.feature.praesi.v1;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeSelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
-import ch.wesr.starter.kirkesampleapp.feature.praesi.v1.FoodCart;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +30,7 @@ class FoodCartUnitTest {
                 .isNotEmpty()
                 .containsEntry(selectedProductId, 5);
 
-        DeSelectProductCommand removeSelectProductCommand = new DeSelectProductCommand(createFoodCartCommand.foodCartId(), selectedProductCommand.productId(), 4);
+        DeselectProductCommand removeSelectProductCommand = new DeselectProductCommand(createFoodCartCommand.foodCartId(), selectedProductCommand.productId(), 4);
         foodCart.deSelectedProduct(removeSelectProductCommand);
 
         Assertions.assertThat(foodCart.getSelectedProducts())

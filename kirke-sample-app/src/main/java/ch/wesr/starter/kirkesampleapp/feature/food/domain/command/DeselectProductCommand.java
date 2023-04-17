@@ -5,5 +5,5 @@ import ch.wesr.starter.kirkespringbootstarter.annotation.TargetAggregateIdentifi
 
 import java.util.UUID;
 
-public record DeSelectProductCommand(@TargetAggregateIdentifier UUID foodCartId, UUID productId, int quantity){
+public record DeselectProductCommand(@TargetAggregateIdentifier UUID foodCartId, UUID productId, int quantity){
 }

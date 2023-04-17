@@ -3,7 +3,6 @@ package ch.wesr.starter.kirkespringbootstarter.eventsourcing;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.Aggregate;
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
-import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventSourceHandler;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedFieldResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
@@ -34,7 +33,6 @@ public class EventRepository {
         eventMap = new LinkedHashMap<>();
     }
 
-    @EventHandler
     public void on(Object event) {
 
         UUID targetIdentifier = TargetIdentifierResolver.resolve(event,AggregatedEventIdentifier.class);

@@ -3,6 +3,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.query.FindFoodCartQuery;
 import ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence.FoodCartView;
@@ -41,6 +42,11 @@ public class FoodCartController {
         return ResponseEntity.ok(commandGateway.send(command));
     }
 
+    @PostMapping(value = "/product/deselect",  consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<String> handle(@RequestBody DeselectProductCommand command) {
+        return ResponseEntity.ok(commandGateway.send(command));
+    }
+
     @PostMapping(path = "/confirm")
     public ResponseEntity<String> handle(@RequestBody ConfirmFoodCartCommand command) {
         return ResponseEntity.ok(commandGateway.send(command));
@@ -48,10 +54,7 @@ public class FoodCartController {
 
     @GetMapping("/{foodCartId}")
     public ResponseEntity<FoodCartView> handle(@PathVariable String foodCartId) {
-
          return ResponseEntity.ok(
                  queryGateway.query(new FindFoodCartQuery(UUID.fromString(foodCartId)), FoodCartView.class));
-
-
     }
 }

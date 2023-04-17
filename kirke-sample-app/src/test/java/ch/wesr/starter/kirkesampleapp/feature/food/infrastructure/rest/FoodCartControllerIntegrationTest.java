@@ -4,7 +4,9 @@ package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence.FoodCartView;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -32,17 +34,88 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     EventRepository eventRepository;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
+
+    @Test
+    void create_valid_food_cart_add_7_products_and_deselect_2_products() throws Exception {
+        UUID foodCartId = createFoodCart();
+        UUID selectProductUuid = UUID.randomUUID();
+        addSelectedProductCommand(foodCartId, selectProductUuid, 1);
+        addSelectedProductCommand(foodCartId, selectProductUuid, 6);
+        deselectProductCommand(foodCartId, selectProductUuid, 2);
+        confirmFoodCart(foodCartId);
+
+        FoodCartView foodCartView = getFoodCartViewBy(foodCartId);
+
+        Assertions.assertThat(foodCartView).isNotNull()
+                .extracting(FoodCartView::getFoodCartId, FoodCartView::isConfirmed)
+                .contains(foodCartId, true);
+
+        Assertions.assertThat(foodCartView.getProducts())
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(1)
+                .containsKey(selectProductUuid)
+                .containsValue(5);
+    }
+
+
+    @Test
+    void create_valid_food_cart_and_add_twice_same_product() throws Exception {
+        UUID foodCartId = createFoodCart();
+        UUID selectProductUuid = UUID.randomUUID();
+        addSelectedProductCommand(foodCartId, selectProductUuid, 1);
+        addSelectedProductCommand(foodCartId, selectProductUuid, 6);
+        confirmFoodCart(foodCartId);
+
+        FoodCartView foodCartView = getFoodCartViewBy(foodCartId);
+
+        Assertions.assertThat(foodCartView).isNotNull()
+                .extracting(FoodCartView::getFoodCartId, FoodCartView::isConfirmed)
+                .contains(foodCartId, true);
+
+        Assertions.assertThat(foodCartView.getProducts())
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(1)
+                .containsKey(selectProductUuid)
+                .containsValue(7);
+    }
+
     @Test
     void create_valid_food_cart_and_query_for() throws Exception {
         UUID foodCartId = createFoodCart();
         UUID selectProductUuid = UUID.randomUUID();
-        addSelectedProductCommand(foodCartId, selectProductUuid);
+        addSelectedProductCommand(foodCartId, selectProductUuid, 2);
         confirmFoodCart(foodCartId);
 
-        this.mockMvc.perform(
-                        get("/api/foodcart/"+foodCartId)
+        FoodCartView foodCartView = getFoodCartViewBy(foodCartId);
+
+        Assertions.assertThat(foodCartView).isNotNull()
+                .extracting(FoodCartView::getFoodCartId, FoodCartView::isConfirmed)
+                .contains(foodCartId, true);
+
+        Assertions.assertThat(foodCartView.getProducts())
+                .isNotNull()
+                .isNotEmpty()
+                .hasSize(1)
+                .containsKey(selectProductUuid)
+                .containsValue(2);
+
+
+    }
+
+    private FoodCartView getFoodCartViewBy(UUID foodCartId) throws Exception {
+        String contentAsString = this.mockMvc.perform(
+                        get("/api/foodcart/" + foodCartId)
                                 .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        return objectMapper.readValue(contentAsString, FoodCartView.class);
     }
 
     private void confirmFoodCart(UUID foodCartId) throws Exception {
@@ -55,8 +128,9 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
                                 .content(asJsonString(confirmFoodCartCommand)))
                 .andExpect(status().isOk());
     }
-    private void addSelectedProductCommand(UUID foodCartId, UUID selectProductUuid) throws Exception {
-        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(foodCartId, selectProductUuid, 1);
+
+    private void addSelectedProductCommand(UUID foodCartId, UUID selectProductUuid, Integer quantity) throws Exception {
+        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(foodCartId, selectProductUuid, quantity);
         // when
         this.mockMvc.perform(
                         post("/api/foodcart/product/add")
@@ -64,6 +138,16 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
                                 .content(asJsonString(selectedProductCommand)))
                 .andExpect(status().isOk());
 
+    }
+
+
+    private void deselectProductCommand(UUID foodCartId, UUID selectProductUuid, int quantity) throws Exception {
+        DeselectProductCommand deselectProductCommand = new DeselectProductCommand(foodCartId, selectProductUuid, quantity);
+        this.mockMvc.perform(
+                        post("/api/foodcart/product/deselect")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .content(asJsonString(deselectProductCommand)))
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -87,7 +171,7 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
         // then
         log.info("EventRepository: {}", eventRepository);
         Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(uuid);
-        FoodCart foodCart =  (FoodCart) byTargetIdentifier.get();
+        FoodCart foodCart = (FoodCart) byTargetIdentifier.get();
         Assertions.assertThat(foodCart).isNotNull()
                 .extracting(FoodCart::getFoodCartId, FoodCart::isConfirmed)
                 .contains(uuid, true);
@@ -117,9 +201,9 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     private FoodCart addSelectedProductCommand(UUID uuid, SelectedProductCommand selectedProductCommand) throws Exception {
         // when
         this.mockMvc.perform(
-                post("/api/foodcart/product/add")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(asJsonString(selectedProductCommand)))
+                        post("/api/foodcart/product/add")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .content(asJsonString(selectedProductCommand)))
                 .andExpect(status().isOk());
 
         // then
