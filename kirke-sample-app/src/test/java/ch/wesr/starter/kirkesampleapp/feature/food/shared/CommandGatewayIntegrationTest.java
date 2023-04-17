@@ -3,7 +3,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.shared;
 
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import lombok.extern.slf4j.Slf4j;
@@ -45,8 +45,8 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
         CreateFoodCartCommand createFoodCartCommand = new CreateFoodCartCommand(foodCartId);
         String foodCartIdAsString = commandGateway.send(createFoodCartCommand);
 
-        SelectProductCommand selectProductCommand = new SelectProductCommand(foodCartId, UUID.randomUUID(), 1);
-        String stillTheSameFoodCartIdAsString = commandGateway.send(selectProductCommand);
+        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(foodCartId, UUID.randomUUID(), 1);
+        String stillTheSameFoodCartIdAsString = commandGateway.send(selectedProductCommand);
 
         Assertions.assertThat(foodCartId.toString()).isEqualTo(stillTheSameFoodCartIdAsString);
 

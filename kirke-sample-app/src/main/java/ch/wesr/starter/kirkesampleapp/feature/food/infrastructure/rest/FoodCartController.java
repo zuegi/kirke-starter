@@ -3,7 +3,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.query.FindFoodCartQuery;
 import ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence.FoodCartView;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
@@ -37,7 +37,7 @@ public class FoodCartController {
     }
 
     @PostMapping(value = "/product/add",  consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> handle(@RequestBody SelectProductCommand command) {
+    public ResponseEntity<String> handle(@RequestBody SelectedProductCommand command) {
         return ResponseEntity.ok(commandGateway.send(command));
     }
 

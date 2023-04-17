@@ -3,7 +3,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.domain;
 
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ConfirmedFoodCartEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
@@ -45,7 +45,7 @@ public class FoodCart {
     }
 
     @CommandHandler
-    public void handle(SelectProductCommand command) {
+    public void handle(SelectedProductCommand command) {
         log.debug("[{}] {}: {}",  command.foodCartId(), command.getClass().getSimpleName(), command);
         AggregateLifeCycle.apply(new ProductSelectedEvent(command.foodCartId(), command.productId(), command.quantity()));
     }

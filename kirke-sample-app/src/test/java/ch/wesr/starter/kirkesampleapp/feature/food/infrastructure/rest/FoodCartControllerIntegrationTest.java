@@ -4,7 +4,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
-import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectProductCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,13 +33,47 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     EventRepository eventRepository;
 
     @Test
+    void create_valid_food_cart_and_query_for() throws Exception {
+        UUID foodCartId = createFoodCart();
+        UUID selectProductUuid = UUID.randomUUID();
+        addSelectedProductCommand(foodCartId, selectProductUuid);
+        confirmFoodCart(foodCartId);
+
+        this.mockMvc.perform(
+                        get("/api/foodcart/"+foodCartId)
+                                .contentType(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isOk());
+    }
+
+    private void confirmFoodCart(UUID foodCartId) throws Exception {
+        ConfirmFoodCartCommand confirmFoodCartCommand = new ConfirmFoodCartCommand(foodCartId);
+
+        // when foodCart is confirmed
+        this.mockMvc.perform(
+                        post("/api/foodcart/confirm")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .content(asJsonString(confirmFoodCartCommand)))
+                .andExpect(status().isOk());
+    }
+    private void addSelectedProductCommand(UUID foodCartId, UUID selectProductUuid) throws Exception {
+        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(foodCartId, selectProductUuid, 1);
+        // when
+        this.mockMvc.perform(
+                        post("/api/foodcart/product/add")
+                                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                                .content(asJsonString(selectedProductCommand)))
+                .andExpect(status().isOk());
+
+    }
+
+    @Test
     void create_food_cart_and_add_selected_product_and_confirm_valid() throws Exception {
         // given
         UUID uuid = createFoodCart();
 
         UUID selectProductUuid = UUID.randomUUID();
-        SelectProductCommand selectProductCommand = new SelectProductCommand(uuid, selectProductUuid, 1);
-        addSelectedProductCommand(uuid, selectProductCommand);
+        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(uuid, selectProductUuid, 1);
+        addSelectedProductCommand(uuid, selectedProductCommand);
 
         ConfirmFoodCartCommand confirmFoodCartCommand = new ConfirmFoodCartCommand(uuid);
 
@@ -69,9 +104,9 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
         UUID uuid = createFoodCart();
 
         UUID selectProductUuid = UUID.randomUUID();
-        SelectProductCommand selectProductCommand = new SelectProductCommand(uuid, selectProductUuid, 1);
+        SelectedProductCommand selectedProductCommand = new SelectedProductCommand(uuid, selectProductUuid, 1);
         // when
-        FoodCart foodCart = addSelectedProductCommand(uuid, selectProductCommand);
+        FoodCart foodCart = addSelectedProductCommand(uuid, selectedProductCommand);
         // then
         Assertions.assertThat(foodCart).isNotNull()
                 .extracting(FoodCart::getFoodCartId, FoodCart::isConfirmed)
@@ -79,12 +114,12 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     }
 
-    private FoodCart addSelectedProductCommand(UUID uuid, SelectProductCommand selectProductCommand) throws Exception {
+    private FoodCart addSelectedProductCommand(UUID uuid, SelectedProductCommand selectedProductCommand) throws Exception {
         // when
         this.mockMvc.perform(
                 post("/api/foodcart/product/add")
                         .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(asJsonString(selectProductCommand)))
+                        .content(asJsonString(selectedProductCommand)))
                 .andExpect(status().isOk());
 
         // then
