@@ -30,11 +30,8 @@ public class FoodCartController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<String> handle() {
-
-        UUID uuid = UUID.randomUUID();
-        log.debug("[{}] Received a Request to create a FoodCart", uuid);
-        return ResponseEntity.ok(commandGateway.send(new CreateFoodCartCommand(uuid)));
+    public ResponseEntity<String> handle(@RequestBody CreateFoodCartCommand createFoodCartCommand) {
+        return ResponseEntity.ok(commandGateway.send(createFoodCartCommand));
     }
 
     @PostMapping(value = "/product/add",  consumes = {MediaType.APPLICATION_JSON_VALUE})

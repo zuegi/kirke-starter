@@ -4,6 +4,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.rest;
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.ConfirmFoodCartCommand;
+import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.DeselectProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence.FoodCartView;
@@ -217,7 +218,12 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     }
 
     private UUID createFoodCart() throws Exception {
-        String contentAsString = this.mockMvc.perform(post("/api/foodcart/create"))
+        UUID uuid = UUID.randomUUID();
+        CreateFoodCartCommand command = new CreateFoodCartCommand(uuid);
+        String contentAsString = this.mockMvc.perform(
+                post("/api/foodcart/create")
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .content(asJsonString(command)))
                 /*.andDo(print())*/
                 .andExpect(status().isOk())
                 .andReturn()
