@@ -38,7 +38,6 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     ObjectMapper objectMapper;
 
-
     @Test
     void create_valid_food_cart_add_7_products_and_deselect_2_products() throws Exception {
         UUID foodCartId = createFoodCart();

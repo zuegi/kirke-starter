@@ -3,6 +3,10 @@ Content-Type: application/json; charset=utf-8
 Accept: application/json
 Cache-Control: no-cache
 
+{
+  "foodCartId": "6bf9a23d-487c-42dc-93ee-d73c6153a8f6"
+}
+
 ####
 
 POST http://localhost:8080/api/foodcart/product/add
@@ -18,7 +22,17 @@ Cache-Control: no-cache
 
 ####
 
-GET http://localhost:8080/api/foodcart/961f9146-b030-41aa-9c81-07575b8a9e8d
+POST http://localhost:8080/api/foodcart/confirm
+Content-Type: application/json; charset=utf-8
+Accept: application/json
+Cache-Control: no-cache
+
+{
+  "foodCartId": "6bf9a23d-487c-42dc-93ee-d73c6153a8f6"
+}
+####
+
+GET http://localhost:8080/api/foodcart/6bf9a23d-487c-42dc-93ee-d73c6153a8f6
 Content-Type: application/json; charset=utf-8
 Accept: application/json
 Cache-Control: no-cache

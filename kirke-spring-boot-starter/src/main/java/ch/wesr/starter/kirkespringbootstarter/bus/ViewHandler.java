@@ -1,14 +1,12 @@
-package ch.wesr.starter.kirkespringbootstarter.gateway.command;
-
+package ch.wesr.starter.kirkespringbootstarter.bus;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,26 +14,15 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-/**
- * NOTE: This class should never be made a spring bean as its method are static for using in pojos
- */
-public class AggregateLifeCycle {
+@Component
+public class ViewHandler implements EventSubscriber{
 
-    public static void apply(Object event) {
-        KirkeEventBus eventBus = SpringContext.getBean(KirkeEventBus.class);
-        eventBus.publish(event);
+    @Override
+    public void handleEvent(Object event) {
+        log.debug("handleEvent({})", event);
 
-    }
-    // mit dieser Methode wollen wir ein existierendes Bean aufrufen, dazu hilft uns die Klasse SpringContext
-    public static void applyw(Object event) {
         UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
         log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
-
-        // Event Sourcing bedienen
-        EventRepository eventRepository = SpringContext.getBean(EventRepository.class);
-        log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepository.getClass().getSimpleName());
-        eventRepository.on(event);
-
 
         // Projector Methoden mit der Annotation EventHandler bedienen
         List<Method> methods = new AggregatedMethodResolver()
@@ -55,8 +42,5 @@ public class AggregateLifeCycle {
             }
 
         });
-
-
     }
-
 }
