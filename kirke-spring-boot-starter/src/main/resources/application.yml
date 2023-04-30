@@ -1,0 +1,22 @@
+logging:
+  level:
+    org.springframework.cloud: DEBUG
+
+spring:
+  cloud:
+    function:
+      definition: eventSourceConsumer
+    stream:
+      binders:
+        local-solace:
+          type: solace
+          environment:
+            solace:
+              java:
+                clientUsername: default
+                clientPassword: default
+                host: 'tcp://mds-pubsubplus:55554'
+                msgVpn: default
+      bindings:
+        eventSourceConsumer-in-0:
+          destination: spring/cloud/stream

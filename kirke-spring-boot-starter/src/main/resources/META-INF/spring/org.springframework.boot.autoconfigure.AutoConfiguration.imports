@@ -1,1 +1,5 @@
 ch.wesr.starter.kirkespringbootstarter.config.KirkeAutoConfiguration
+org.springframework.cloud.stream.config.BinderFactoryAutoConfiguration
+org.springframework.cloud.stream.config.BindingsEndpointAutoConfiguration
+com.solace.spring.cloud.stream.binder.config.SolaceServiceAutoConfiguration
+

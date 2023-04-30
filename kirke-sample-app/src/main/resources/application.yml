@@ -7,6 +7,13 @@ logging:
       wesr:
         starter:
           kirkesampleapp: DEBUG
+    org.springframework.cloud: DEBUG
+    ch.wesr.starter.kirkespringbootstarter: DEBUG
+
+server:
+  port: 8081
+
+spring:
   datasource:
     url: jdbc:h2:mem:h2orderdb
     username: sa
