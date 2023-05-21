@@ -5,7 +5,6 @@ import ch.wesr.starter.kirkespringbootstarter.annotation.Aggregate;
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventSourceHandler;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
-import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedFieldResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +13,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -39,28 +37,19 @@ public class EventRepositoryImpl implements EventRepository {
 
         UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
         log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
-        List<Field> fieldList = new AggregatedFieldResolver()
-                .filterClasses(event.getClass())
-                .filterFieldAnnotationWith(AggregatedEventIdentifier.class)
-                .resolve();
-        // FIXME fieldlist.size mit Exceptions
-        assert fieldList.size() == 1;
 
-        // FIXME kann man schoener machen
         try {
-            Field field = fieldList.get(0);
-            field.setAccessible(true);
-            Object objectId = field.get(event);
+
             String eventAsString = objectMapper.writeValueAsString(event);
-            if (eventMap.containsKey(objectId)) {
-                Map<Class<?>, String> classStringMap = eventMap.get(objectId);
+            if (eventMap.containsKey(targetIdentifier)) {
+                Map<Class<?>, String> classStringMap = eventMap.get(targetIdentifier);
                 classStringMap.put(event.getClass(), eventAsString);
             } else {
                 Map<Class<?>, String> classStringMap = new LinkedHashMap<>();
                 classStringMap.put(event.getClass(), eventAsString);
-                eventMap.put((UUID) objectId, classStringMap);
+                eventMap.put(targetIdentifier, classStringMap);
             }
-        } catch (IllegalAccessException | JsonProcessingException e) {
+        } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
 
@@ -83,7 +72,7 @@ public class EventRepositoryImpl implements EventRepository {
             };
 
             // an dieser Stelle wird ueber alle Events iteriert und
-            // die Aggregate Methoden annotiert mit @EventSourceHandler aufgerufen
+            // die Aggregate Methoden - annotiert mit @EventSourceHandler - aufgerufen
             classStringMap.forEach((key, value) -> {
                 log.debug("Event with targetIdentifier [{}] key: {}, value: {}", targetIdentifier, key, value);
                 try {
