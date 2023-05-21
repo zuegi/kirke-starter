@@ -1,15 +1,16 @@
 package ch.wesr.starter.kirkespringbootstarter.bus;
 
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeEventBusImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = {KirkeEventBus.class, ViewHandler.class, DomainHandler.class})
-class KirkeEventBusIntegrationTest {
+@SpringBootTest(classes = {KirkeEventBusImpl.class, ViewHandler.class, DomainHandler.class})
+class KirkeEventBusImplIntegrationTest {
 
 
     @Autowired
-    KirkeEventBus eventBus;
+    KirkeEventBusImpl eventBus;
 
     @Test
     void testeMich() {
