@@ -1,6 +1,7 @@
 package ch.wesr.starter.kirkespringbootstarter.config;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
+import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventSourceConsumer;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
@@ -15,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Slf4j
 @Configuration
-@ConditionalOnClass({CommandGateway.class, QueryGateway.class, KirkeEventBus.class})
+@ConditionalOnClass({CommandGateway.class, QueryGateway.class, KirkeEventBus.class, KirkeEventSourceConsumer.class})
 public class KirkeAutoConfiguration {
 
     @Autowired
@@ -57,5 +58,12 @@ public class KirkeAutoConfiguration {
         KirkeEventBus kirkeEventBus = new KirkeEventBus(applicationContext);
         log.debug("KirkeEventBus: {} has been started", kirkeEventBus);
         return kirkeEventBus;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    KirkeEventSourceConsumer kirkeEventSourceConsumer() {
+        KirkeEventSourceConsumer kirkeEventSourceConsumer = new KirkeEventSourceConsumer();
+        return kirkeEventSourceConsumer;
     }
 }

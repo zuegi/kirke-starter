@@ -9,6 +9,7 @@ logging:
           kirkesampleapp: DEBUG
     org.springframework.cloud: DEBUG
     ch.wesr.starter.kirkespringbootstarter: DEBUG
+    com.solace.spring.cloud: DEBUG
 
 server:
   port: 8081
@@ -28,3 +29,21 @@ spring:
   h2:
     console:
       enabled: true
+  cloud:
+    function:
+      definition: eventSourceConsumer
+    stream:
+      default-binder: solace
+      bindings:
+        eventSourceConsumer-in-0:
+          destination: 'try-me'
+
+
+solace:
+  java:
+    host: localhost:55554
+    client-name: default
+    client-password: default
+    msg-vpn: default
+
+
