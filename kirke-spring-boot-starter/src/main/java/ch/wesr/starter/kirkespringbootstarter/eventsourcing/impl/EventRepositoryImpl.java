@@ -37,7 +37,7 @@ public class EventRepositoryImpl implements EventRepository {
     @Override
     public void on(Object event) {
 
-        UUID targetIdentifier = TargetIdentifierResolver.resolve(event,AggregatedEventIdentifier.class);
+        UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
         log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
         List<Field> fieldList = new AggregatedFieldResolver()
                 .filterClasses(event.getClass())
@@ -81,32 +81,26 @@ public class EventRepositoryImpl implements EventRepository {
             var ref = new Object() {
                 Object aggregate = null;
             };
+
+            // an dieser Stelle wird ueber alle Events iteriert und
+            // die Aggregate Methoden annotiert mit @EventSourceHandler aufgerufen
             classStringMap.forEach((key, value) -> {
-                log.debug("[{}] key: {}, value: {}", targetIdentifier, key, value);
+                log.debug("Event with targetIdentifier [{}] key: {}, value: {}", targetIdentifier, key, value);
                 try {
                     Object event = objectMapper.readValue(value, key);
                     log.debug("[{}] event name: {}", targetIdentifier, event.getClass().getSimpleName());
 
-                    List<Method> methodList = new AggregatedMethodResolver()
-                            .filterClassAnnotatedWith(Aggregate.class)
-                            .filterMethodAnnotatedWith(EventSourceHandler.class)
-                            .filterMethodParameter(event)
-                            .resolve();
-                    assert methodList.size() == 1;
+                    Method method = extractMethod(event);
 
                     if (ref.aggregate == null) {
-                        ref.aggregate = methodList.get(0).getDeclaringClass().newInstance();
+                        ref.aggregate = method.getDeclaringClass().newInstance();
                     }
 
-                    methodList.forEach(method -> {
-                        try {
-                            method.invoke(ref.aggregate, event);
-                        } catch (IllegalAccessException | InvocationTargetException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
+                    method.invoke(ref.aggregate, event);
 
-                } catch (JsonProcessingException | InstantiationException | IllegalAccessException e) {
+
+                } catch (JsonProcessingException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                    // FIXME Exception Handling
                     throw new RuntimeException(e);
                 }
 
@@ -116,6 +110,16 @@ public class EventRepositoryImpl implements EventRepository {
         }
 
         return Optional.empty();
+    }
+
+    private static Method extractMethod(Object event) {
+        List<Method> methodList = new AggregatedMethodResolver()
+                .filterClassAnnotatedWith(Aggregate.class)
+                .filterMethodAnnotatedWith(EventSourceHandler.class)
+                .filterMethodParameter(event)
+                .resolve();
+        assert methodList.size() == 1;
+        return methodList.get(0);
     }
 
 

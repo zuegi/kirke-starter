@@ -5,7 +5,7 @@ import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import java.util.UUID;
 class EventRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
-    EventRepositoryImpl eventRepositoryImpl;
+    EventRepository eventRepository;
 
     @Test
     void on() {
@@ -27,11 +27,11 @@ class EventRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
         var foodCartEvent = new FoodCartCreatedEvent(foodCartCreatedEventId);
         var productSelectedEvent = new ProductSelectedEvent(foodCartCreatedEventId, productSelectedEventID, 2);
-        eventRepositoryImpl.on(foodCartEvent);
-        eventRepositoryImpl.on(productSelectedEvent);
+        eventRepository.on(foodCartEvent);
+        eventRepository.on(productSelectedEvent);
 
         // when
-        Optional<Object> byTargetIdentifier = eventRepositoryImpl.findByTargetIdentifier(foodCartCreatedEventId);
+        Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(foodCartCreatedEventId);
         Assertions.assertThat(byTargetIdentifier.isPresent()).isTrue();
         FoodCart foodCart = (FoodCart) byTargetIdentifier.get();
 
