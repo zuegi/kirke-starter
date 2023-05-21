@@ -4,7 +4,7 @@ package ch.wesr.starter.kirkespringbootstarter.gateway.command;
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
@@ -32,9 +32,9 @@ public class AggregateLifeCycle {
         log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
 
         // Event Sourcing bedienen
-        EventRepository eventRepository = SpringContext.getBean(EventRepository.class);
-        log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepository.getClass().getSimpleName());
-        eventRepository.on(event);
+        EventRepositoryImpl eventRepositoryImpl = SpringContext.getBean(EventRepositoryImpl.class);
+        log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepositoryImpl.getClass().getSimpleName());
+        eventRepositoryImpl.on(event);
 
 
         // Projector Methoden mit der Annotation EventHandler bedienen

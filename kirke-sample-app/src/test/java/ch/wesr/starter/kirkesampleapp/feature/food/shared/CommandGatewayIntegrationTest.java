@@ -4,7 +4,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.shared;
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -22,12 +22,12 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
     CommandGateway commandGateway;
 
     @Autowired
-    EventRepository eventRepository;
+    EventRepositoryImpl eventRepositoryImpl;
 
     @Test
     void assert_uuid_is_the_same() {
         log.info("!!!!!!!!!!!!!!!!!!!!! Start assert_uuid_is_the_same Test !!!!!!!!!!!!!!!!!!!!");
-        log.info("EventRepository: {}", eventRepository);
+        log.info("EventRepository: {}", eventRepositoryImpl);
         log.info("CommandGateway: {}", commandGateway);
         UUID foodCartId = UUID.randomUUID();
         CreateFoodCartCommand createFoodCartCommand = new CreateFoodCartCommand(foodCartId);
@@ -39,7 +39,7 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
     @Test
     void testemich() {
         log.info("!!!!!!!!!!!!!!!!!!!!! Start testemich Test !!!!!!!!!!!!!!!!!!!!");
-        log.info("EventRepository: {}", eventRepository);
+        log.info("EventRepository: {}", eventRepositoryImpl);
         log.info("CommandGateway: {}", commandGateway);
         UUID foodCartId = UUID.randomUUID();
         CreateFoodCartCommand createFoodCartCommand = new CreateFoodCartCommand(foodCartId);
@@ -51,7 +51,7 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
         Assertions.assertThat(foodCartId.toString()).isEqualTo(stillTheSameFoodCartIdAsString);
 
 
-        Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(foodCartId);
+        Optional<Object> byTargetIdentifier = eventRepositoryImpl.findByTargetIdentifier(foodCartId);
         Assertions.assertThat(byTargetIdentifier).isPresent();
 
         Assertions.assertThat(byTargetIdentifier.get())

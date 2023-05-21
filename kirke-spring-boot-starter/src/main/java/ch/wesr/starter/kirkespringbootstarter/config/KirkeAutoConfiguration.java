@@ -1,6 +1,7 @@
 package ch.wesr.starter.kirkespringbootstarter.config;
 
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import ch.wesr.starter.kirkespringbootstarter.gateway.query.QueryGateway;
@@ -24,9 +25,9 @@ public class KirkeAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     EventRepository eventRepository() {
-        EventRepository eventRepository = new EventRepository();
-        log.debug("EventRepository: {} has been started", eventRepository);
-        return eventRepository;
+        EventRepositoryImpl eventRepositoryImpl = new EventRepositoryImpl();
+        log.debug("EventRepository: {} has been started", eventRepositoryImpl);
+        return eventRepositoryImpl;
     }
 
     @Bean

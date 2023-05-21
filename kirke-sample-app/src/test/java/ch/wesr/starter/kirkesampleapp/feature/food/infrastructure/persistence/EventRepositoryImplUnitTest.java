@@ -1,22 +1,18 @@
 package ch.wesr.starter.kirkesampleapp.feature.food.infrastructure.persistence;
 
 
-import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-class EventRepositoryIntegrationTest extends AbstractIntegrationTest {
+class EventRepositoryImplUnitTest {
 
-    @Autowired
-    EventRepository eventRepository;
 
     @Test
     void on() {
@@ -24,14 +20,14 @@ class EventRepositoryIntegrationTest extends AbstractIntegrationTest {
         UUID foodCartCreatedEventId = UUID.randomUUID();
         UUID productSelectedEventID = UUID.randomUUID();
 
-
+        EventRepository eventRepositoryImpl = new EventRepositoryImpl();
         var foodCartEvent = new FoodCartCreatedEvent(foodCartCreatedEventId);
         var productSelectedEvent = new ProductSelectedEvent(foodCartCreatedEventId, productSelectedEventID, 2);
-        eventRepository.on(foodCartEvent);
-        eventRepository.on(productSelectedEvent);
+        eventRepositoryImpl.on(foodCartEvent);
+        eventRepositoryImpl.on(productSelectedEvent);
 
         // when
-        Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(foodCartCreatedEventId);
+        Optional<Object> byTargetIdentifier = eventRepositoryImpl.findByTargetIdentifier(foodCartCreatedEventId);
         Assertions.assertThat(byTargetIdentifier.isPresent()).isTrue();
         FoodCart foodCart = (FoodCart) byTargetIdentifier.get();
 
@@ -43,6 +39,27 @@ class EventRepositoryIntegrationTest extends AbstractIntegrationTest {
 
         Assertions.assertThat(foodCart.getSelectedProducts())
                 .containsEntry(productSelectedEventID, 2);
+
+    }
+
+    @Test
+    void testemich() {
+
+        Map<UUID, List<String>> map = new HashMap<>();
+
+        UUID key = UUID.randomUUID();
+        ArrayList<String> strings = new ArrayList<>();
+        strings.add("Ich bin ein String");
+        strings.add("Ich bin auch ein String");
+        map.put(key, strings);
+
+        map.entrySet().stream().map(me -> {
+                    return "Key: " + me.getKey() + "\n"
+                            + "Values: " + String.join(", ", me.getValue());
+                })
+                .forEach(System.out::print);
+
+
 
     }
 

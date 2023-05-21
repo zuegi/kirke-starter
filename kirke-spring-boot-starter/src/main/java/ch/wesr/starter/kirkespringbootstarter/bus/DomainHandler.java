@@ -1,7 +1,7 @@
 package ch.wesr.starter.kirkespringbootstarter.bus;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
 import lombok.extern.slf4j.Slf4j;
@@ -18,8 +18,8 @@ public class DomainHandler implements EventSubscriber{
         log.debug("handleEvent({})", event);
         UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
         log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
-        EventRepository eventRepository = SpringContext.getBean(EventRepository.class);
-        log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepository.getClass().getSimpleName());
-        eventRepository.on(event);
+        EventRepositoryImpl eventRepositoryImpl = SpringContext.getBean(EventRepositoryImpl.class);
+        log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepositoryImpl.getClass().getSimpleName());
+        eventRepositoryImpl.on(event);
     }
 }

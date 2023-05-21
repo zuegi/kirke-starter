@@ -30,12 +30,9 @@ public class CommandGateway {
         log.debug("[{}] read targetIdentifer from command: {}", targetIdentifier, command);
         // extrahiere die Methode, welche mit @CommandHandler annotiert ist und command als signature parameter hat
         List<Method> methodList = getMethods(command);
-        assertCorrectNumberOfMethods(methodList);
-        Method method = methodList.get(0);
-
+        Method method = assertCorrectNumberOfMethods(methodList);
 
         try {
-
             Object aggregateObject = eventRepository.findByTargetIdentifier(targetIdentifier).orElse( createNewAggregateObject(method));
             log.debug("[{}] found aggregate: {}", targetIdentifier, aggregateObject.toString());
             // an dieser stellen das aus dem repository erstellte Aggregate Object aufrufen
@@ -67,12 +64,13 @@ public class CommandGateway {
         }
     }
 
-    private void assertCorrectNumberOfMethods(List<Method> methodList) {
+    private Method assertCorrectNumberOfMethods(List<Method> methodList) {
         if (methodList.size() == 0) {
             throw new NoAnnotatedMethodFoundException(CommandGatewayMessage.NO_WAY);
         }
         if (methodList.size() > 1) {
             throw new ToManyAnnotatedMethodException(CommandGatewayMessage.TO_MANY);
         }
+        return methodList.get(0);
     }
 }
