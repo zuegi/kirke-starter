@@ -58,18 +58,14 @@ public class EventRepositoryImpl implements EventRepository {
 
     @Override
     public Optional<Object> findByTargetIdentifier(UUID targetIdentifier) {
-        // falls einen persistiertes TargetIdentifier gibt
-        // Lade die serialisierten Events aus dem Store und de-serialize die Events
-        // fahre die Events gegen das Aggregate mit den EventHandler Methoden nach
-        // gib das Aggregate zurueck
-
+        // finde das persistierte TargetIdentifier
+        // Lade die Events aus dem Store und fahre die Events gegen das Aggregate
         if (eventMap.containsKey(targetIdentifier)) {
             Map<Class<?>, String> classStringMap = eventMap.get(targetIdentifier);
+            var ref = new Object() {Object aggregate = null;};
 
-
-            var ref = new Object() {
-                Object aggregate = null;
-            };
+            // FIXME Cache einbauen... bzw. Snapshot oder in der Art etwas ähnliches
+            // bzw. vermeide so lange wie möglich Snapshots
 
             // an dieser Stelle wird ueber alle Events iteriert und
             // die Aggregate Methoden - annotiert mit @EventSourceHandler - aufgerufen
@@ -86,13 +82,10 @@ public class EventRepositoryImpl implements EventRepository {
                     }
 
                     method.invoke(ref.aggregate, event);
-
-
                 } catch (JsonProcessingException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
                     // FIXME Exception Handling
                     throw new RuntimeException(e);
                 }
-
             });
 
             return Optional.of(ref.aggregate);

@@ -229,9 +229,7 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        Assertions.assertThat(contentAsString).isNotEmpty();
-
-        return UUID.fromString(contentAsString);
+        return objectMapper.readValue(contentAsString, UUID.class);
     }
 
     private static String asJsonString(final Object obj) {

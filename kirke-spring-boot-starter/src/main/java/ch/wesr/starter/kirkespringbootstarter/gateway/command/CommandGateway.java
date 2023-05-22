@@ -23,7 +23,7 @@ public class CommandGateway {
         this.eventRepository = eventRepository;
     }
 
-    public String send(Object command) {
+    public UUID send(Object command) {
 
         // den Wert des @TargetAggregateIdentifer aus dem Command via Reflection auslesen
         UUID targetIdentifier = TargetIdentifierResolver.resolve(command, TargetAggregateIdentifier.class);
@@ -39,7 +39,7 @@ public class CommandGateway {
             log.debug("[{}] invoke method: {}({},{})", targetIdentifier, method.getName(), aggregateObject, command);
             method.invoke(aggregateObject, command);
 
-            return targetIdentifier.toString();
+            return targetIdentifier;
 
         } catch (InvocationTargetException | IllegalAccessException e) {
             // FIXME Exception definieren

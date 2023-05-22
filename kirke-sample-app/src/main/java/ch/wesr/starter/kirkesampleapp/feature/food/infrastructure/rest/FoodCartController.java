@@ -29,29 +29,34 @@ public class FoodCartController {
         this.queryGateway = queryGateway;
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<String> handle(@RequestBody CreateFoodCartCommand createFoodCartCommand) {
+    @PostMapping(value = "/create", consumes = {MediaType.APPLICATION_JSON_VALUE},
+    produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UUID> handle(@RequestBody CreateFoodCartCommand createFoodCartCommand) {
         return ResponseEntity.ok(commandGateway.send(createFoodCartCommand));
     }
 
-    @PostMapping(value = "/product/add",  consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> handle(@RequestBody SelectedProductCommand command) {
+    @PostMapping(value = "/product/add", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UUID> handle(@RequestBody SelectedProductCommand command) {
         return ResponseEntity.ok(commandGateway.send(command));
     }
 
-    @PostMapping(value = "/product/deselect",  consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<String> handle(@RequestBody DeselectProductCommand command) {
+    @PostMapping(path = "/product/deselect", consumes = {MediaType.APPLICATION_JSON_VALUE},
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UUID> handle(@RequestBody DeselectProductCommand command) {
         return ResponseEntity.ok(commandGateway.send(command));
     }
 
-    @PostMapping(path = "/confirm")
-    public ResponseEntity<String> handle(@RequestBody ConfirmFoodCartCommand command) {
+    @PostMapping(path = "/confirm",
+            produces = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<UUID> handle(@RequestBody ConfirmFoodCartCommand command) {
         return ResponseEntity.ok(commandGateway.send(command));
     }
 
-    @GetMapping("/{foodCartId}")
+    @GetMapping(path = "/{foodCartId}",
+            produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<FoodCartView> handle(@PathVariable String foodCartId) {
-         return ResponseEntity.ok(
-                 queryGateway.query(new FindFoodCartQuery(UUID.fromString(foodCartId)), FoodCartView.class));
+        return ResponseEntity.ok(
+                queryGateway.query(new FindFoodCartQuery(UUID.fromString(foodCartId)), FoodCartView.class));
     }
 }

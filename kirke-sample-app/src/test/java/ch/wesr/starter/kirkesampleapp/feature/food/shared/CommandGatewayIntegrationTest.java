@@ -4,7 +4,7 @@ package ch.wesr.starter.kirkesampleapp.feature.food.shared;
 import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.CreateFoodCartCommand;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.command.SelectedProductCommand;
-import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
+import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -22,36 +22,33 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
     CommandGateway commandGateway;
 
     @Autowired
-    EventRepositoryImpl eventRepositoryImpl;
+    EventRepository eventRepository;
 
     @Test
     void assert_uuid_is_the_same() {
-        log.info("!!!!!!!!!!!!!!!!!!!!! Start assert_uuid_is_the_same Test !!!!!!!!!!!!!!!!!!!!");
-        log.info("EventRepository: {}", eventRepositoryImpl);
+        log.info("EventRepository: {}", eventRepository);
         log.info("CommandGateway: {}", commandGateway);
         UUID foodCartId = UUID.randomUUID();
         CreateFoodCartCommand createFoodCartCommand = new CreateFoodCartCommand(foodCartId);
-        String foodCartIdAsString = commandGateway.send(createFoodCartCommand);
-        Assertions.assertThat(foodCartId.toString()).isEqualTo(foodCartIdAsString);
-        log.info("!!!!!!!!!!!!!!!!!!!!! End assert_uuid_is_the_same Test !!!!!!!!!!!!!!!!!!!!");
+        UUID foodCartIdFromGateway = commandGateway.send(createFoodCartCommand);
+        Assertions.assertThat(foodCartId).isEqualTo(foodCartIdFromGateway);
     }
 
     @Test
-    void testemich() {
-        log.info("!!!!!!!!!!!!!!!!!!!!! Start testemich Test !!!!!!!!!!!!!!!!!!!!");
-        log.info("EventRepository: {}", eventRepositoryImpl);
+    void assert_uuid_is_the_same_after_added_select_product_command() {
+        log.info("EventRepository: {}", eventRepository);
         log.info("CommandGateway: {}", commandGateway);
         UUID foodCartId = UUID.randomUUID();
         CreateFoodCartCommand createFoodCartCommand = new CreateFoodCartCommand(foodCartId);
-        String foodCartIdAsString = commandGateway.send(createFoodCartCommand);
+        commandGateway.send(createFoodCartCommand);
 
         SelectedProductCommand selectedProductCommand = new SelectedProductCommand(foodCartId, UUID.randomUUID(), 1);
-        String stillTheSameFoodCartIdAsString = commandGateway.send(selectedProductCommand);
+        UUID stillTheSameFoodCartIdFromGateway = commandGateway.send(selectedProductCommand);
 
-        Assertions.assertThat(foodCartId.toString()).isEqualTo(stillTheSameFoodCartIdAsString);
+        Assertions.assertThat(foodCartId).isEqualTo(stillTheSameFoodCartIdFromGateway);
 
 
-        Optional<Object> byTargetIdentifier = eventRepositoryImpl.findByTargetIdentifier(foodCartId);
+        Optional<Object> byTargetIdentifier = eventRepository.findByTargetIdentifier(foodCartId);
         Assertions.assertThat(byTargetIdentifier).isPresent();
 
         Assertions.assertThat(byTargetIdentifier.get())
@@ -59,6 +56,5 @@ class CommandGatewayIntegrationTest extends AbstractIntegrationTest {
                 .extracting("foodCartId")
                 .isEqualTo(foodCartId);
 
-        log.info("!!!!!!!!!!!!!!!!!!!!! Ende testemich Test !!!!!!!!!!!!!!!!!!!!");
     }
 }
