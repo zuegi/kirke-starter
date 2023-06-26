@@ -1,26 +1,31 @@
 package ch.wesr.starter.kirkespringbootstarter.config;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.DomainHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.KirkeDomainEventHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeEventBusImpl;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.command.CommandGateway;
 import ch.wesr.starter.kirkespringbootstarter.gateway.query.QueryGateway;
+import com.solace.labs.spring.boot.autoconfigure.SolaceJavaAutoConfiguration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Slf4j
 @Configuration
 @ConditionalOnClass({CommandGateway.class, QueryGateway.class, KirkeEventBus.class})
+@Import({SolaceJavaAutoConfiguration.class, ViewHandler.class, DomainHandler.class, KirkeDomainEventHandler.class})
 public class KirkeAutoConfiguration {
 
-    final
-    ApplicationContext context;
+    final ApplicationContext context;
 
     public KirkeAutoConfiguration(ApplicationContext context) {
         this.context = context;
@@ -63,4 +68,5 @@ public class KirkeAutoConfiguration {
         log.debug("KirkeEventBus: {} has been started", kirkeEventBus);
         return kirkeEventBus;
     }
+
 }

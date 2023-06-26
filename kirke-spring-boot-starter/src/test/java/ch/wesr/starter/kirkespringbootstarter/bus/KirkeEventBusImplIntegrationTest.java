@@ -1,5 +1,7 @@
 package ch.wesr.starter.kirkespringbootstarter.bus;
 
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.DomainHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeEventBusImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

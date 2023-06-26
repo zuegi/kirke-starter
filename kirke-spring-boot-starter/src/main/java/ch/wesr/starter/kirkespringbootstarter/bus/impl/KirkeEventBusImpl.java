@@ -1,16 +1,14 @@
 package ch.wesr.starter.kirkespringbootstarter.bus.impl;
 
-import ch.wesr.starter.kirkespringbootstarter.bus.EventSubscriber;
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.EventSubscriber;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
 @Slf4j
-@Component
 public class KirkeEventBusImpl implements KirkeEventBus {
 
     private final ApplicationContext context;

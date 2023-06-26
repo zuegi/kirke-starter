@@ -4,9 +4,9 @@ logging:
 #      hibernate:
 #        SQL: DEBUG
     ch:
-      wesr:
-        starter:
-          kirkesampleapp: DEBUG
+      wesr: DEBUG
+#        starter:
+#          kirkesampleapp: DEBUG
   datasource:
     url: jdbc:h2:mem:h2orderdb
     username: sa
@@ -21,3 +21,10 @@ logging:
   h2:
     console:
       enabled: true
+
+solace:
+  java:
+    host: tcp://mds-pubsubplus:55554
+    msgVpn: default
+    clientUsername: default
+    clientPassword: default

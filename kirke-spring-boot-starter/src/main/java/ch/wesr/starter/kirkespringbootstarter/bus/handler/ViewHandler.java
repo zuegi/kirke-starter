@@ -1,4 +1,4 @@
-package ch.wesr.starter.kirkespringbootstarter.bus;
+package ch.wesr.starter.kirkespringbootstarter.bus.handler;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
