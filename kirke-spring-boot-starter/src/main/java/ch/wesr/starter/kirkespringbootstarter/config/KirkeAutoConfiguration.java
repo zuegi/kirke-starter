@@ -99,7 +99,7 @@ public class KirkeAutoConfiguration {
         }
     }
 
-    @Bean
+    @Bean(name = KirkeDomainEventHandler.BEAN_NAME)
     @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "solace")
     protected KirkeDomainEventHandler kirkeDomainEventHandler() {
         KirkeDomainEventHandler kirkeDomainEventHandler = new KirkeDomainEventHandler(jcsmpSession(), objectMapper);
