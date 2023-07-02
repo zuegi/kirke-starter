@@ -46,12 +46,12 @@ public class KirkeMessageConsumer implements XMLMessageListener {
                 throw new RuntimeException(e);
             }
         } else {
-            log.info("============= Unexcepted type of message received: {}", msg);
+            log.error("Unexcepted type of message received: {}", msg);
         }
     }
 
     public void onException(JCSMPException e) {
-        log.info("Consumer received exception:", e);
+        log.error("Consumer received exception:", e);
     }
 
 }

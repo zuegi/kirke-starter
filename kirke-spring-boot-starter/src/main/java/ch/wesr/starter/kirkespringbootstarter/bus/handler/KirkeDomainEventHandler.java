@@ -50,8 +50,7 @@ public class KirkeDomainEventHandler implements EventSubscriber {
         jcsmpMsg.setText(msg);
         jcsmpMsg.setDeliveryMode(DeliveryMode.DIRECT);
 
-
-        log.info("============= Sending {}", msg);
+        log.debug("Sending {}", msg);
         prod.send(jcsmpMsg, topic);
     }
 }

@@ -4,7 +4,8 @@ import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.DomainHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.KirkeDomainEventHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeEventBusImpl;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeInlineEventBusImpl;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeSolaceEventBusImpl;
 import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessageConsumer;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
@@ -28,7 +29,7 @@ import org.springframework.context.annotation.Import;
 @Slf4j
 @Configuration
 @ConditionalOnClass({CommandGateway.class, QueryGateway.class, KirkeEventBus.class})
-@Import({SolaceJavaAutoConfiguration.class, /*ViewHandler.class, DomainHandler.class,*/ /*KirkeDomainEventHandler.class, KirkeMessageConsumer.class*/})
+@Import({SolaceJavaAutoConfiguration.class})
 public class KirkeAutoConfiguration {
 
     private final ApplicationContext context;
@@ -74,8 +75,18 @@ public class KirkeAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    protected KirkeEventBus kirkeEventBus() {
-        KirkeEventBus kirkeEventBus = new KirkeEventBusImpl(context);
+    @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "solace")
+    protected KirkeEventBus kirkeSolaceEventBus() {
+        KirkeEventBus kirkeEventBus = new KirkeSolaceEventBusImpl(jcsmpSession(), objectMapper);
+        log.debug("KirkeEventBus: {} has been started", kirkeEventBus);
+        return kirkeEventBus;
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "inline")
+    protected KirkeEventBus kirkeInlineEventBus() {
+        KirkeEventBus kirkeEventBus = new KirkeInlineEventBusImpl(domainHandler(), viewHandler());
         log.debug("KirkeEventBus: {} has been started", kirkeEventBus);
         return kirkeEventBus;
     }
@@ -115,7 +126,8 @@ public class KirkeAutoConfiguration {
         return kirkeMessageConsumer;
     }
 
-    @Bean()
+    @Bean
+    @ConditionalOnMissingBean
     protected ViewHandler viewHandler() {
         ViewHandler viewHandler = new ViewHandler(objectMapper);
         log.debug("ViewHandler: {} has been started", viewHandler);

@@ -1,17 +1,17 @@
 package ch.wesr.starter.kirkespringbootstarter.bus;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeEventBusImpl;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeSolaceEventBusImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(classes = {KirkeEventBusImpl.class, ViewHandler.class/*, DomainHandler.class*/})
-class KirkeEventBusImplIntegrationTest {
+@SpringBootTest(classes = {KirkeSolaceEventBusImpl.class, ViewHandler.class/*, DomainHandler.class*/})
+class KirkeInlineEventBusImplIntegrationTest {
 
 
     @Autowired
-    KirkeEventBusImpl eventBus;
+    KirkeSolaceEventBusImpl eventBus;
 
     @Test
     void testeMich() {
