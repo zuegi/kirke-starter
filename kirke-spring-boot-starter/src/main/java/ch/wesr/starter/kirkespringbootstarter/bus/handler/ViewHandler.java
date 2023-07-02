@@ -2,11 +2,13 @@ package ch.wesr.starter.kirkespringbootstarter.bus.handler;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -14,33 +16,45 @@ import java.util.List;
 import java.util.UUID;
 
 @Slf4j
-@Component
-public class ViewHandler implements EventSubscriber{
+public class ViewHandler implements EventSubscriber {
+
+    public static final String BEAN_NAME = "viewHandler";
+    private final ObjectMapper objectMapper;
+
+    public ViewHandler(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     @Override
-    public void handleEvent(Object event) {
-        log.debug("handleEvent({})", event);
+    public void handleEvent(KirkePayLoad kirkePayLoad) {
+        log.debug("handleEvent({})", kirkePayLoad.source());
 
-        UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
-        log.debug("[{}]  {}: {}", targetIdentifier, event.getClass().getSimpleName(), event);
+        try {
+            // hier gibt es das Objekt mit der Annotation wahrscheinlich nicht mehr
+            Object event = objectMapper.readValue(kirkePayLoad.payload().toString(), kirkePayLoad.source());
 
-        // Projector Methoden mit der Annotation EventHandler bedienen
-        List<Method> methods = new AggregatedMethodResolver()
-                .filterMethodAnnotatedWith(EventHandler.class)
-                .filterMethodParameter(event)
-                .resolve();
+            UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
+            log.debug("[{}]  {}: {}", targetIdentifier, kirkePayLoad.source(), kirkePayLoad);
+            // Projector Methoden mit der Annotation EventHandler bedienen
+            List<Method> methods = new AggregatedMethodResolver()
+                    .filterMethodAnnotatedWith(EventHandler.class)
+                    .filterMethodParameter(event)
+                    .resolve();
 
-        methods.forEach(method -> {
-            Class<?> declaringClass = method.getDeclaringClass();
-            Object bean = SpringContext.getBean(declaringClass);
-            log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier, method.getName(), bean.getClass().getSimpleName());
+            methods.forEach(method -> {
+                Class<?> declaringClass = method.getDeclaringClass();
+                Object bean = SpringContext.getBean(declaringClass);
+                log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier, method.getName(), bean.getClass().getSimpleName());
 
-            try {
-                method.invoke(bean, event);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                log.error("[{}] Error calling method: {} on bean: {}\n{}", targetIdentifier, method.getName(), bean.getClass().getSimpleName(), e);
-            }
+                try {
+                    method.invoke(bean, event);
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    log.error("[{}] Error calling method: {} on bean: {} \n {}", targetIdentifier, method.getName(), bean.getClass().getSimpleName(), e.getMessage());
+                }
 
-        });
+            });
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

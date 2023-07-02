@@ -22,6 +22,10 @@ logging:
     console:
       enabled: true
 
+kirke:
+  event: solace
+#  event: inline
+
 solace:
   java:
     host: tcp://mds-pubsubplus:55554

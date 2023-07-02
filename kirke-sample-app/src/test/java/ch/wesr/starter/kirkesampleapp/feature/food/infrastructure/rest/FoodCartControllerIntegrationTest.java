@@ -40,7 +40,8 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void create_valid_food_cart_add_7_products_and_deselect_2_products() throws Exception {
-        UUID foodCartId = createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        UUID foodCartId = createFoodCart(uuid);
         UUID selectProductUuid = UUID.randomUUID();
         addSelectedProductCommand(foodCartId, selectProductUuid, 1);
         addSelectedProductCommand(foodCartId, selectProductUuid, 6);
@@ -64,7 +65,8 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void create_valid_food_cart_and_add_twice_same_product() throws Exception {
-        UUID foodCartId = createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        UUID foodCartId = createFoodCart(uuid);
         UUID selectProductUuid = UUID.randomUUID();
         addSelectedProductCommand(foodCartId, selectProductUuid, 1);
         addSelectedProductCommand(foodCartId, selectProductUuid, 6);
@@ -86,7 +88,8 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void create_valid_food_cart_and_query_for() throws Exception {
-        UUID foodCartId = createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        UUID foodCartId = createFoodCart(uuid);
         UUID selectProductUuid = UUID.randomUUID();
         addSelectedProductCommand(foodCartId, selectProductUuid, 2);
         confirmFoodCart(foodCartId);
@@ -153,7 +156,8 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     @Test
     void create_food_cart_and_add_selected_product_and_confirm_valid() throws Exception {
         // given
-        UUID uuid = createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        createFoodCart(uuid);
 
         UUID selectProductUuid = UUID.randomUUID();
         SelectedProductCommand selectedProductCommand = new SelectedProductCommand(uuid, selectProductUuid, 1);
@@ -185,7 +189,8 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
     @Test
     void create_foodcart_and_add_selected_product_valid() throws Exception {
         // given
-        UUID uuid = createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        createFoodCart(uuid);
 
         UUID selectProductUuid = UUID.randomUUID();
         SelectedProductCommand selectedProductCommand = new SelectedProductCommand(uuid, selectProductUuid, 1);
@@ -213,11 +218,12 @@ class FoodCartControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Test
     void create_foodcart_valid() throws Exception {
-        createFoodCart();
+        UUID uuid = UUID.randomUUID();
+        UUID foodCartId = createFoodCart(uuid);
+        Assertions.assertThat(uuid).isEqualTo(foodCartId);
     }
 
-    private UUID createFoodCart() throws Exception {
-        UUID uuid = UUID.randomUUID();
+    private UUID createFoodCart(UUID uuid) throws Exception {
         CreateFoodCartCommand command = new CreateFoodCartCommand(uuid);
         String contentAsString = this.mockMvc.perform(
                 post("/api/foodcart/create")

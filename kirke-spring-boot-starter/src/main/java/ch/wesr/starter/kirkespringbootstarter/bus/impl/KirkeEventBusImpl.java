@@ -1,7 +1,10 @@
 package ch.wesr.starter.kirkespringbootstarter.bus.impl;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
+import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.DomainHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.EventSubscriber;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
@@ -24,10 +27,12 @@ public class KirkeEventBusImpl implements KirkeEventBus {
     }
 
     @Override
-    public void publish(Object event) {
-        for (String key : subscribers.keySet()) {
+    public void publish(KirkePayLoad kirkePayLoad) {
+      /*  for (String key : subscribers.keySet()) {
             log.debug("key: {}", key);
-            subscribers.get(key).handleEvent(event);
-        }
+            subscribers.get(key).handleEvent(kirkePayLoad);
+        }*/
+        subscribers.get(DomainHandler.BEAN_NAME).handleEvent(kirkePayLoad);
+        subscribers.get(ViewHandler.BEAN_NAME).handleEvent(kirkePayLoad);
     }
 }
