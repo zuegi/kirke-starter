@@ -5,7 +5,7 @@ import ch.wesr.starter.kirkesampleapp.AbstractIntegrationTest;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.FoodCart;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.FoodCartCreatedEvent;
 import ch.wesr.starter.kirkesampleapp.feature.food.domain.event.ProductSelectedEvent;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ class EventRepositoryImplIntegrationTest extends AbstractIntegrationTest {
 
         var foodCartEvent = new FoodCartCreatedEvent(foodCartCreatedEventId);
         var productSelectedEvent = new ProductSelectedEvent(foodCartCreatedEventId, productSelectedEventID, 2);
-        KirkePayLoad foodCartEventPayLoad = new KirkePayLoad(foodCartEvent.getClass(), foodCartEvent);
-        KirkePayLoad productSelectedEventPayLoad = new KirkePayLoad(productSelectedEvent.getClass(), productSelectedEvent);
+        KirkeMessage foodCartEventPayLoad = new KirkeMessage(foodCartEvent.getClass(), foodCartEvent);
+        KirkeMessage productSelectedEventPayLoad = new KirkeMessage(productSelectedEvent.getClass(), productSelectedEvent);
 
         eventRepository.on(foodCartEventPayLoad);
         eventRepository.on(productSelectedEventPayLoad);

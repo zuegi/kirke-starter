@@ -23,8 +23,8 @@ logging:
       enabled: true
 
 kirke:
-#  event: solace
-  event: inline
+  event: solace
+#  event: inline
 
 solace:
   java:

@@ -4,7 +4,7 @@ package ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl;
 import ch.wesr.starter.kirkespringbootstarter.annotation.Aggregate;
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventSourceHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
@@ -34,22 +34,23 @@ public class EventRepositoryImpl implements EventRepository {
     }
 
     @Override
-    public void on(KirkePayLoad kirkePayLoad) {
+    public UUID on(KirkeMessage kirkeMessage) {
 
         try {
-            Object event = objectMapper.readValue(kirkePayLoad.payload().toString(), kirkePayLoad.source());
+            Object event = objectMapper.readValue(kirkeMessage.payload().toString(), kirkeMessage.source());
             UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
-            log.debug("[{}]  {}: {}", targetIdentifier, kirkePayLoad.source().getSimpleName(), kirkePayLoad.payload());
+            log.debug("[{}]  {}: {}", targetIdentifier, kirkeMessage.source().getSimpleName(), kirkeMessage.payload());
 
             if (eventMap.containsKey(targetIdentifier)) {
                 Map<Class<?>, String> classStringMap = eventMap.get(targetIdentifier);
-                classStringMap.put(kirkePayLoad.source(), kirkePayLoad.payload().toString());
+                classStringMap.put(kirkeMessage.source(), kirkeMessage.payload().toString());
             } else {
                 Map<Class<?>, String> classStringMap = new LinkedHashMap<>();
-                classStringMap.put(kirkePayLoad.source(), kirkePayLoad.payload().toString());
+                classStringMap.put(kirkeMessage.source(), kirkeMessage.payload().toString());
                 eventMap.put(targetIdentifier, classStringMap);
             }
-            log.debug("[{}] eventmap: {}", kirkePayLoad, eventMap.toString());
+            log.debug("[{}] eventmap: {}", kirkeMessage, eventMap.toString());
+            return targetIdentifier;
         } catch (JsonProcessingException e) {
             // FIXME catch Exception on EventRepositoryImpl
             throw new RuntimeException(e);

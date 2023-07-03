@@ -1,6 +1,8 @@
-package ch.wesr.starter.kirkespringbootstarter.bus.handler;
+package ch.wesr.starter.kirkespringbootstarter.bus.publish;
 
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.EventSubscriber;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.PublishEventHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solacesystems.jcsmp.*;
 import jakarta.annotation.PostConstruct;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class KirkeDomainEventHandler implements EventSubscriber {
+public class KirkeDomainEventPublisher implements EventSubscriber {
 
     public final static String BEAN_NAME = "domainHandler";
 
@@ -24,7 +26,7 @@ public class KirkeDomainEventHandler implements EventSubscriber {
 
     private final ObjectMapper objectMapper;
 
-    public KirkeDomainEventHandler(JCSMPSession jcsmpSession, ObjectMapper objectMapper) {
+    public KirkeDomainEventPublisher(JCSMPSession jcsmpSession, ObjectMapper objectMapper) {
         this.jcsmpSession = jcsmpSession;
         this.objectMapper = objectMapper;
     }
@@ -38,9 +40,9 @@ public class KirkeDomainEventHandler implements EventSubscriber {
 
     @SneakyThrows
     @Override
-    public void handleEvent(KirkePayLoad kirkePayLoad) {
+    public void handleEvent(KirkeMessage kirkeMessage) {
 //        final JCSMPSession session = solaceFactory.createSession();
-        String msg = objectMapper.writeValueAsString(kirkePayLoad);
+        String msg = objectMapper.writeValueAsString(kirkeMessage);
         PublishEventHandler pubEventHandler = new PublishEventHandler();
         /** Anonymous inner-class for handling publishing events */
         XMLMessageProducer prod = jcsmpSession.getMessageProducer(pubEventHandler);

@@ -2,11 +2,12 @@ package ch.wesr.starter.kirkespringbootstarter.config;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.DomainHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.handler.KirkeDomainEventHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.KirkeDomainHandler;
+import ch.wesr.starter.kirkespringbootstarter.bus.handler.KirkeViewHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.ViewHandler;
 import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeInlineEventBusImpl;
 import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeSolaceEventBusImpl;
-import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessageConsumer;
+import ch.wesr.starter.kirkespringbootstarter.bus.publish.KirkeDomainEventPublisher;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
@@ -110,27 +111,36 @@ public class KirkeAutoConfiguration {
         }
     }
 
-    @Bean(name = KirkeDomainEventHandler.BEAN_NAME)
+    @Bean(name = KirkeDomainEventPublisher.BEAN_NAME)
     @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "solace")
-    protected KirkeDomainEventHandler kirkeDomainEventHandler() {
-        KirkeDomainEventHandler kirkeDomainEventHandler = new KirkeDomainEventHandler(jcsmpSession(), objectMapper);
-        log.debug("KirkeDomainEventHandler: {} has been started", kirkeDomainEventHandler);
-        return kirkeDomainEventHandler;
+    protected KirkeDomainEventPublisher kirkeDomainEventHandler() {
+        KirkeDomainEventPublisher kirkeDomainEventPublisher = new KirkeDomainEventPublisher(jcsmpSession(), objectMapper);
+        log.debug("KirkeDomainEventHandler: {} has been started", kirkeDomainEventPublisher);
+        return kirkeDomainEventPublisher;
     }
 
     @Bean
     @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "solace")
-    protected KirkeMessageConsumer kirkeMessageConsumer() {
-        KirkeMessageConsumer kirkeMessageConsumer = new KirkeMessageConsumer(jcsmpSession(), objectMapper, eventRepository());
-        log.debug("KirkeMessageConsumer: {} has been started", kirkeMessageConsumer);
-        return kirkeMessageConsumer;
+    protected KirkeDomainHandler kirkeMessageConsumer() {
+        KirkeDomainHandler kirkeDomainHandler = new KirkeDomainHandler(jcsmpSession(), objectMapper, eventRepository());
+        log.debug("KirkeMessageConsumer: {} has been started", kirkeDomainHandler);
+        return kirkeDomainHandler;
     }
 
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "inline")
     protected ViewHandler viewHandler() {
         ViewHandler viewHandler = new ViewHandler(objectMapper);
         log.debug("ViewHandler: {} has been started", viewHandler);
         return viewHandler;
+    }
+
+    @Bean
+    @ConditionalOnProperty(prefix = "kirke", name = "event", havingValue = "solace")
+    protected KirkeViewHandler kirkeViewHandler() {
+        KirkeViewHandler kirkeViewHandler = new KirkeViewHandler(objectMapper, jcsmpSession());
+        log.debug("ViewHandler: {} has been started", kirkeViewHandler);
+        return kirkeViewHandler;
     }
 }

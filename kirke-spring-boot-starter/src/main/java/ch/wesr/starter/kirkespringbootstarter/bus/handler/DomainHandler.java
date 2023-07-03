@@ -1,7 +1,8 @@
 package ch.wesr.starter.kirkespringbootstarter.bus.handler;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.EventSubscriber;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.impl.EventRepositoryImpl;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
@@ -13,7 +14,7 @@ import java.util.UUID;
 
 @Slf4j
 //@Component
-public class DomainHandler implements EventSubscriber{
+public class DomainHandler implements EventSubscriber {
 
     public final static String BEAN_NAME = "domainHandler";
 
@@ -24,16 +25,16 @@ public class DomainHandler implements EventSubscriber{
     }
 
     @Override
-    public void handleEvent(KirkePayLoad kirkePayLoad) {
-        log.debug("handleEvent({})", kirkePayLoad.payload());
+    public void handleEvent(KirkeMessage kirkeMessage) {
+        log.debug("handleEvent({})", kirkeMessage.payload());
         try {
-            Object event = objectMapper.readValue(kirkePayLoad.payload().toString(), kirkePayLoad.source());
+            Object event = objectMapper.readValue(kirkeMessage.payload().toString(), kirkeMessage.source());
             UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
-            log.debug("[{}]  {}: {}", targetIdentifier, kirkePayLoad.source(), kirkePayLoad);
+            log.debug("[{}]  {}: {}", targetIdentifier, kirkeMessage.source(), kirkeMessage);
 
             EventRepositoryImpl eventRepositoryImpl = SpringContext.getBean(EventRepositoryImpl.class);
             log.debug("[{}] found method: {} to be invoked on {}", targetIdentifier,"on", eventRepositoryImpl.getClass().getSimpleName());
-            eventRepositoryImpl.on(kirkePayLoad);
+            eventRepositoryImpl.on(kirkeMessage);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

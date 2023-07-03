@@ -2,7 +2,7 @@ package ch.wesr.starter.kirkespringbootstarter.gateway.command;
 
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,9 +17,9 @@ public class AggregateLifeCycle {
 
         try {
             String eventAsString = objectMapper.writeValueAsString(event);
-            KirkePayLoad kirkePayLoad = new KirkePayLoad( event.getClass(), eventAsString);
-            log.debug("Publish payload: {}", kirkePayLoad);
-            eventBus.publish(kirkePayLoad);
+            KirkeMessage kirkeMessage = new KirkeMessage( event.getClass(), eventAsString);
+            log.debug("Publish payload: {}", kirkeMessage);
+            eventBus.publish(kirkeMessage);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

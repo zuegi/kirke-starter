@@ -1,6 +1,6 @@
-package ch.wesr.starter.kirkespringbootstarter.bus.impl;
+package ch.wesr.starter.kirkespringbootstarter.bus.handler;
 
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.eventsourcing.EventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class KirkeMessageConsumer implements XMLMessageListener {
+public class KirkeDomainHandler implements XMLMessageListener {
 
     private final ObjectMapper objectMapper;
     private final JCSMPSession session;
     private final EventRepository eventRepository;
 
 
-    public KirkeMessageConsumer(JCSMPSession jcsmpSession, ObjectMapper objectMapper, EventRepository eventRepository) {
+    public KirkeDomainHandler(JCSMPSession jcsmpSession, ObjectMapper objectMapper, EventRepository eventRepository) {
         this.objectMapper = objectMapper;
         this.session = jcsmpSession;
         this.eventRepository = eventRepository;
@@ -40,8 +40,8 @@ public class KirkeMessageConsumer implements XMLMessageListener {
             String messageAsString = ((TextMessage) msg).getText();
             log.debug("TextMessage received: {}", messageAsString);
             try {
-                KirkePayLoad kirkePayLoad = objectMapper.readValue(messageAsString, KirkePayLoad.class);
-                eventRepository.on(kirkePayLoad);
+                KirkeMessage kirkeMessage = objectMapper.readValue(messageAsString, KirkeMessage.class);
+                eventRepository.on(kirkeMessage);
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

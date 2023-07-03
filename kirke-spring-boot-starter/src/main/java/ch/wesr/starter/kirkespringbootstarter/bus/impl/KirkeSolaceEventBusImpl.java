@@ -1,7 +1,6 @@
 package ch.wesr.starter.kirkespringbootstarter.bus.impl;
 
 import ch.wesr.starter.kirkespringbootstarter.bus.KirkeEventBus;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
 import ch.wesr.starter.kirkespringbootstarter.bus.handler.PublishEventHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +32,9 @@ public class KirkeSolaceEventBusImpl implements KirkeEventBus {
     }
 
     @Override
-    public void publish(KirkePayLoad kirkePayLoad) {
+    public void publish(KirkeMessage kirkeMessage) {
         try {
-            String msg = objectMapper.writeValueAsString(kirkePayLoad);
+            String msg = objectMapper.writeValueAsString(kirkeMessage);
             PublishEventHandler pubEventHandler = new PublishEventHandler();
             /** Anonymous inner-class for handling publishing events */
             XMLMessageProducer prod = jcsmpSession.getMessageProducer(pubEventHandler);

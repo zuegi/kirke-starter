@@ -2,7 +2,8 @@ package ch.wesr.starter.kirkespringbootstarter.bus.handler;
 
 import ch.wesr.starter.kirkespringbootstarter.annotation.AggregatedEventIdentifier;
 import ch.wesr.starter.kirkespringbootstarter.annotation.EventHandler;
-import ch.wesr.starter.kirkespringbootstarter.bus.KirkePayLoad;
+import ch.wesr.starter.kirkespringbootstarter.bus.EventSubscriber;
+import ch.wesr.starter.kirkespringbootstarter.bus.impl.KirkeMessage;
 import ch.wesr.starter.kirkespringbootstarter.gateway.AggregatedMethodResolver;
 import ch.wesr.starter.kirkespringbootstarter.gateway.SpringContext;
 import ch.wesr.starter.kirkespringbootstarter.gateway.TargetIdentifierResolver;
@@ -26,15 +27,15 @@ public class ViewHandler implements EventSubscriber {
     }
 
     @Override
-    public void handleEvent(KirkePayLoad kirkePayLoad) {
-        log.debug("handleEvent({})", kirkePayLoad.source());
+    public void handleEvent(KirkeMessage kirkeMessage) {
+        log.debug("handleEvent({})", kirkeMessage.source());
 
         try {
             // hier gibt es das Objekt mit der Annotation wahrscheinlich nicht mehr
-            Object event = objectMapper.readValue(kirkePayLoad.payload().toString(), kirkePayLoad.source());
+            Object event = objectMapper.readValue(kirkeMessage.payload().toString(), kirkeMessage.source());
 
             UUID targetIdentifier = TargetIdentifierResolver.resolve(event, AggregatedEventIdentifier.class);
-            log.debug("[{}]  {}: {}", targetIdentifier, kirkePayLoad.source(), kirkePayLoad);
+            log.debug("[{}]  {}: {}", targetIdentifier, kirkeMessage.source(), kirkeMessage);
             // Projector Methoden mit der Annotation EventHandler bedienen
             List<Method> methods = new AggregatedMethodResolver()
                     .filterMethodAnnotatedWith(EventHandler.class)
